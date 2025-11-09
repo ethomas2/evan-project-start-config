@@ -1,0 +1,108 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# No Success/Error Return Pattern Rule
+
+## General Principle
+**Never return boolean success/error indicators from functions.** Let exceptions bubble up instead.
+
+## Guidelines
+
+### ❌ DON'T: Return success/error booleans
+```python
+def download_file(url: str) -> bool:
+    try:
+        # download logic
+        return True
+    except Exception:
+        return False
+
+def write_data(data: bytes) -> bool:
+    try:
+        # write logic
+        return True
+    except Exception:
+        return False
+```
+
+### ✅ DO: Let exceptions bubble up
+```python
+def download_file(url: str) -> None:
+    # download logic
+    # If anything fails, let the exception bubble up
+
+def write_data(data: bytes) -> None:
+    # write logic
+    # If anything fails, let the exception bubble up
+```
+
+### ✅ DO: Use specific exceptions when appropriate
+```python
+def download_file(url: str) -> None:
+    if not url:
+        raise ValueError("URL cannot be empty")
+
+    # download logic
+    # Let network errors, file errors, etc. bubble up naturally
+```
+
+## Rationale
+
+### Problems with boolean returns:
+- **Hidden errors**: Callers don't know what went wrong
+- **Inconsistent error handling**: Each caller handles errors differently
+- **Lost context**: Error details are lost
+- **Poor debugging**: No stack traces or error context
+
+### Benefits of letting exceptions bubble up:
+- **Rich error information**: Full stack traces and error context
+- **Consistent handling**: Top-level error handlers provide uniform responses
+- **Better debugging**: Clear error messages and stack traces
+- **Fail fast**: Problems are discovered immediately
+- **Standard Python pattern**: Follows Python's EAFP (Easier to Ask for Forgiveness than Permission) principle
+
+## Examples
+
+### ❌ Bad pattern:
+```python
+def process_data(data: str) -> bool:
+    try:
+        validate_data(data)
+        transform_data(data)
+        save_data(data)
+        return True
+    except Exception:
+        return False
+
+# Caller has to handle the boolean
+success = process_data(data)
+if not success:
+    print("Something went wrong")  # No idea what!
+```
+
+### ✅ Good pattern:
+```python
+def process_data(data: str) -> None:
+    validate_data(data)  # Raises ValueError if invalid
+    transform_data(data)  # Raises ProcessingError if fails
+    save_data(data)      # Raises IOError if fails
+
+# Caller can handle specific exceptions
+try:
+    process_data(data)
+except ValueError as e:
+    print(f"Invalid data: {e}")
+except ProcessingError as e:
+    print(f"Processing failed: {e}")
+except IOError as e:
+    print(f"Save failed: {e}")
+```
+
+## Exception
+The only exception to this rule is when you have a legitimate boolean operation:
+```python
+def file_exists(path: str) -> bool:
+    return os.path.exists(path)  # This is actually a boolean question
+```

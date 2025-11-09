@@ -1,0 +1,177 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Match Statements for Exhaustiveness Checking
+
+**ALWAYS use match statements instead of if-elif chains when exhaustiveness checking is required.**
+
+## ❌ WRONG - Don't do this:
+```python
+if command == 'list':
+    return ListArgs()
+elif command == 'delete':
+    return DeleteArgs()
+elif command == 'upload':
+    return UploadArgs(...)
+else:
+    # This else clause is required for exhaustiveness
+    parser.print_help()
+    sys.exit(1)
+```
+
+## ✅ CORRECT - Always do this:
+```python
+match command:
+    case 'list':
+        return ListArgs()
+    case 'delete':
+        return DeleteArgs()
+    case 'upload':
+        return UploadArgs(...)
+    case _:
+        # This catch-all case ensures exhaustiveness
+        parser.print_help()
+        sys.exit(1)
+```
+
+## Type-Based Dispatch
+
+**Use match statements for type-based dispatch instead of multiple isinstance checks:**
+
+### ❌ WRONG - Don't do this:
+```python
+if isinstance(args, ListArgs):
+    list_stores()
+    return
+
+if isinstance(args, DeleteArgs):
+    delete_stores()
+    return
+
+if isinstance(args, UploadArgs):
+    upload_args = args
+    # Handle upload logic...
+```
+
+### ✅ CORRECT - Always do this:
+```python
+match args:
+    case ListArgs():
+        list_stores()
+        return
+    case DeleteArgs():
+        delete_stores()
+        return
+    case UploadArgs() as upload_args:
+        # Handle upload logic...
+        upload_files(vector_store_id, upload_args)
+```
+
+## Why Use Match Statements?
+
+1. **Exhaustiveness Checking**: Python will warn if you miss a case
+2. **Better Performance**: More efficient than if-elif chains
+3. **Cleaner Code**: More readable and maintainable
+4. **Pattern Matching**: Can destructure and match complex patterns
+5. **Type Safety**: Better integration with type checkers
+
+## When to Use Match Statements
+
+- **Enum handling**: When processing all possible enum values
+- **Command parsing**: When handling all possible command types
+- **State machines**: When processing all possible states
+- **Type dispatching**: When handling all possible types in a union
+- **Any case where you need exhaustiveness checking**
+
+## Exception: Simple Boolean Logic
+
+For simple boolean conditions, if-else is still appropriate:
+```python
+if user.is_authenticated:
+    return "Welcome back!"
+else:
+    return "Please log in"
+```
+
+## Examples
+
+### Command Parsing
+```python
+# ✅ Good
+match parsed_args.command:
+    case 'list-vector-stores':
+        return ListArgs()
+    case 'delete-vector-stores':
+        return DeleteArgs()
+    case 'upload-files':
+        return UploadArgs(...)
+    case _:
+        parser.print_help()
+        sys.exit(1)
+
+# ❌ Bad
+if parsed_args.command == 'list-vector-stores':
+    return ListArgs()
+elif parsed_args.command == 'delete-vector-stores':
+    return DeleteArgs()
+elif parsed_args.command == 'upload-files':
+    return UploadArgs(...)
+else:
+    parser.print_help()
+    sys.exit(1)
+```
+
+### Type-Based Dispatch
+```python
+# ✅ Good
+match args:
+    case ListArgs():
+        list_stores()
+        return
+    case DeleteArgs():
+        delete_stores()
+        return
+    case UploadArgs() as upload_args:
+        # Handle upload logic...
+        upload_files(vector_store_id, upload_args)
+
+# ❌ Bad
+if isinstance(args, ListArgs):
+    list_stores()
+    return
+
+if isinstance(args, DeleteArgs):
+    delete_stores()
+    return
+
+if isinstance(args, UploadArgs):
+    upload_args = args
+    # Handle upload logic...
+    upload_files(vector_store_id, upload_args)
+```
+
+### Enum Handling
+```python
+# ✅ Good
+match status:
+    case Status.PENDING:
+        return "Processing..."
+    case Status.COMPLETED:
+        return "Done!"
+    case Status.FAILED:
+        return "Error occurred"
+    case _:
+        return "Unknown status"
+
+# ❌ Bad
+if status == Status.PENDING:
+    return "Processing..."
+elif status == Status.COMPLETED:
+    return "Done!"
+elif status == Status.FAILED:
+    return "Error occurred"
+else:
+    return "Unknown status"
+```

@@ -1,0 +1,164 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Modern Python Type Annotations
+
+**ALWAYS use modern Python type annotation syntax instead of importing from the typing module.**
+
+## ❌ WRONG - Don't do this:
+```python
+from typing import List, Dict, Set, Optional, Union
+
+def process_items(items: List[str]) -> Optional[Dict[str, str]]:
+    unique_items: Set[str] = set(items)
+    return {"count": len(unique_items)} if unique_items else None
+
+# Old union syntax
+def handle_data(data: Union[str, bytes]) -> str:
+    return str(data)
+
+# Old optional syntax
+def get_value(key: str) -> Optional[str]:
+    return None
+```
+
+## ✅ CORRECT - Always do this:
+```python
+def process_items(items: list[str]) -> dict[str, str] | None:
+    unique_items: set[str] = set(items)
+    return {"count": len(unique_items)} if unique_items else None
+
+# Modern union syntax
+def handle_data(data: str | bytes) -> str:
+    return str(data)
+
+# Modern optional syntax
+def get_value(key: str) -> str | None:
+    return None
+```
+
+## Type Annotation Mapping
+
+| Old Syntax | New Syntax | Example |
+|------------|------------|---------|
+| `List[T]` | `list[T]` | `list[str]` |
+| `Dict[K, V]` | `dict[K, V]` | `dict[str, int]` |
+| `Set[T]` | `set[T]` | `set[int]` |
+| `Tuple[T, ...]` | `tuple[T, ...]` | `tuple[int, str]` |
+| `Optional[T]` | `T | None` | `str | None` |
+| `Union[T1, T2]` | `T1 | T2` | `str | bytes` |
+
+## When to Still Import from typing
+
+**Only import from typing for types that don't have built-in alternatives:**
+
+```python
+from typing import IO, BinaryIO, TextIO, Protocol, TypeVar, Callable
+
+# File-like objects
+def read_file(file_obj: IO[bytes]) -> bytes:
+    return file_obj.read()
+
+# Protocols (structural typing)
+class Readable(Protocol):
+    def read(self) -> str: ...
+
+# Type variables for generics
+T = TypeVar('T')
+def identity(item: T) -> T:
+    return item
+
+# Complex callable types
+def apply_func(func: Callable[[int], str], value: int) -> str:
+    return func(value)
+```
+
+## Examples
+
+### Function Parameters
+```python
+# ✅ Good
+def upload_files(files: list[str], store_id: str | None = None) -> dict[str, str]:
+    pass
+
+# ❌ Bad
+def upload_files(files: List[str], store_id: Optional[str] = None) -> Dict[str, str]:
+    pass
+```
+
+### Class Attributes
+```python
+# ✅ Good
+class UploadArgs:
+    file: list[str] | None = None
+    vector_store_id: str | None = None
+    max_workers: int = 3
+
+# ❌ Bad
+class UploadArgs:
+    file: Optional[List[str]] = None
+    vector_store_id: Optional[str] = None
+    max_workers: int = 3
+```
+
+### Return Types
+```python
+# ✅ Good
+def get_stores() -> list[dict[str, str]]:
+    return [{"id": "vs_123", "name": "My Store"}]
+
+def find_store(name: str) -> dict[str, str] | None:
+    return None
+
+# ❌ Bad
+def get_stores() -> List[Dict[str, str]]:
+    return [{"id": "vs_123", "name": "My Store"}]
+
+def find_store(name: str) -> Optional[Dict[str, str]]:
+    return None
+```
+
+### Variable Annotations
+```python
+# ✅ Good
+user_ids: set[int] = {1, 2, 3}
+config: dict[str, str | int] = {"host": "localhost", "port": 8000}
+
+# ❌ Bad
+user_ids: Set[int] = {1, 2, 3}
+config: Dict[str, Union[str, int]] = {"host": "localhost", "port": 8000}
+```
+
+## Benefits
+
+1. **Cleaner Code**: More readable and concise
+2. **Better Performance**: No runtime overhead from typing imports
+3. **Modern Python**: Uses Python 3.9+ built-in generics
+4. **Consistency**: All type annotations follow the same pattern
+5. **Maintainability**: Easier to read and understand
+
+## Exception: Complex Types
+
+For complex types that don't have built-in alternatives, continue using typing:
+```python
+from typing import Protocol, TypeVar, Callable, IO
+
+class FileProcessor(Protocol):
+    def process(self, file: IO[bytes]) -> str: ...
+
+T = TypeVar('T')
+def map_items(items: list[T], func: Callable[[T], str]) -> list[str]:
+    return [func(item) for item in items]
+```
+
+## Migration Guide
+
+1. Replace `List[T]` → `list[T]`
+2. Replace `Dict[K, V]` → `dict[K, V]`
+3. Replace `Set[T]` → `set[T]`
+4. Replace `Optional[T]` → `T | None`
+5. Replace `Union[T1, T2]` → `T1 | T2`
+6. Remove unnecessary `from typing import List, Dict, Set, Optional, Union`
+7. Keep necessary imports like `IO`, `Protocol`, `TypeVar`, etc.

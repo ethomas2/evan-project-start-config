@@ -1,0 +1,51 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Error Handling Rule
+
+## General Principle
+**Let errors bubble up to the top level.** Do not catch exceptions unless you have a specific reason to handle them.
+
+## Guidelines
+
+### ✅ DO: Let errors propagate
+- Allow exceptions to bubble up to the caller
+- Let the top-level error handler (e.g., FastAPI's exception handler) deal with them
+- This provides better error visibility and debugging
+
+### ❌ DON'T: Catch and suppress errors
+- Don't catch exceptions just to print them and return `False` or `None`
+- Don't catch broad `Exception` types unless absolutely necessary
+- Don't hide errors that should be visible to developers
+
+### ✅ DO: Catch specific exceptions when needed
+- Only catch specific exception types when you have a meaningful way to handle them
+- Examples: `FileNotFoundError` when you want to return a default value, `ValidationError` for input validation
+
+### Example of good error handling:
+```python
+def read_file(path: str) -> str:
+    """Read file contents. Let FileNotFoundError bubble up."""
+    with open(path, 'r') as f:
+        return f.read()
+```
+
+### Example of bad error handling:
+```python
+def read_file(path: str) -> str:
+    """Bad: catching and suppressing errors."""
+    try:
+        with open(path, 'r') as f:
+            return f.read()
+    except Exception as e:
+        print(f"Error: {e}")
+        return ""  # This hides the real error!
+```
+
+## Rationale
+- **Better debugging**: Errors bubble up with full stack traces
+- **Clearer code**: No hidden error handling logic
+- **Consistent error handling**: Top-level handlers can provide consistent error responses
+- **Fail fast**: Problems are discovered immediately rather than being masked

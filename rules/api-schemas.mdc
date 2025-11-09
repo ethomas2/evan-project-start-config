@@ -1,0 +1,47 @@
+# API Schema Organization Rule
+
+## Rule: Organize API schemas by endpoint
+
+When creating API schemas in `schemas.py`, organize them by endpoint with clear section headers.
+
+### Format:
+```python
+# ======================= EndpointName ====================
+
+class EndpointNameHTTPRequest(BaseModel):
+    # Request fields here
+    ...
+
+class EndpointNameHTTPResponse(BaseModel):
+    # Response fields here
+    ...
+
+# ======================= NextEndpoint ====================
+```
+
+### Requirements:
+1. Each endpoint should have its own section with a descriptive header
+2. Use `=======================` separators with endpoint name
+3. Request and response models should be named `{EndpointName}HTTPRequest` and `{EndpointName}HTTPResponse`
+4. All FastAPI endpoint functions must have return type annotations using these schemas
+5. Use proper Pydantic BaseModel for all request/response models
+6. Include type hints for all fields (e.g., `str | None = None` for optional fields)
+
+### Example:
+```python
+# ======================= DownloadVideo ====================
+
+class DownloadVideoHTTPRequest(BaseModel):
+    url: str
+
+class DownloadVideoHTTPResponse(BaseModel):
+    video_id: str
+
+# ======================= GetVideoStatus ====================
+
+class GetVideoStatusHTTPResponse(BaseModel):
+    status: str
+    video_id: str
+    stream_url: str | None = None
+    storage_type: str | None = None
+```
