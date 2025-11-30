@@ -1,0 +1,33 @@
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.pyright]
+exclude = [
+    "**/migrations/versions",
+    "**/.venv",
+    "**/venv",
+    "**/*_BACKUP_*",
+    "**/*_BASE_*",
+    "**/*_LOCAL_*",
+    "**/*_REMOTE_*"
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pytest.ini_options]
+addopts = "-sx --ff --tb=short"
+pythonpath = ["."]
+asyncio_mode = "auto"
+timeout = 30
+
+
+[tool.pytest_benchmark]
+warmup = true
+warmup_iterations = 2
+rounds = 5
+min_rounds = 3
