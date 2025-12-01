@@ -28,6 +28,26 @@ from typing import (
 logger = logging.getLogger(__name__)
 
 
+def find_git_root(
+    start_path: pathlib.Path | str | None = None,
+) -> pathlib.Path:  # TODO: rename to find_app_root()
+    """
+    Find the root directory of the git repository by searching upwards
+    from the given path or the current working directory.
+    """
+
+    current_path = pathlib.Path(start_path) if start_path is not None else pathlib.Path.cwd()
+    if not current_path.is_dir():
+        current_path = current_path.parent
+
+    while not (current_path / ".git").is_dir():
+        current_path = current_path.parent
+        is_root = current_path.parent == current_path
+        if is_root:
+            raise ValueError("Could not find git root")
+    return current_path
+
+
 def md5_hash(content: str | bytes) -> str:
     match content:
         case str():
@@ -289,50 +309,6 @@ def print_green(message: str, file: TextIO | None = None):
 def print_red(message: str, file: TextIO | None = None):
     file = file or sys.stderr
     print(f"\033[0;31m{message}\033[0m", flush=True, file=file)
-
-
-def find_git_root(
-    start_path: Optional[pathlib.Path | str] = None,
-) -> pathlib.Path:  # TODO: rename to find_app_root()
-    """
-    Find the root directory of the git repository by searching upwards
-    from the given path or the current working directory.
-
-    Parameters:
-    - start_path: Optional[Path], the directory to start searching from.
-
-    Returns:
-    - Path to the root of the git repository if found, otherwise None.
-    """
-
-    def _current_path():
-        return pathlib.Path(start_path) if start_path is not None else pathlib.Path.cwd()
-
-    def _find_git_root():
-        current_path = _current_path()
-        if not current_path.is_dir():
-            current_path = current_path.parent
-
-        while not (current_path / ".git").is_dir():
-            current_path = current_path.parent
-            is_root = current_path.parent == current_path
-            if is_root:
-                return None
-        return current_path
-
-    def _find_app_root():
-        current_path = _current_path()
-        while not (current_path.is_dir() and current_path.name == "app"):
-            current_path = current_path.parent
-            is_root = current_path.parent == current_path
-            if is_root:
-                return None
-        return current_path
-
-    app_root = _find_git_root() or _find_app_root()
-    if not app_root:
-        raise ValueError("Could not find root")
-    return app_root
 
 
 def flatten[T](xss: list[list[T]]) -> list[T]:
