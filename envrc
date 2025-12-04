@@ -1,0 +1,23 @@
+################################# Common Shit #################################
+[ -f .secrets.envrc ] && source .secrets.envrc
+export GIT_BASE_DEFAULT_BRANCH=origin/main
+export PATH=$PATH:$(pwd)/utility
+export PATH=$PATH:$(pwd)/devtools/
+
+
+################################ Frontend Shit ################################
+export PATH=$PATH:$(pwd)/frontend/node_modules/.bin
+
+
+################################ Database Shit ################################
+export PGUSER=postgres
+export PGPASSWORD=password
+export PGDATABASE=postgres
+export PGHOST=localhost
+export PGPORT=5432
+
+
+################################# Python Shit #################################
+[ -f venv/bin/ ] && source venv/bin/activate
+export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+export PDBRC=$(pwd)/.pdbrc
