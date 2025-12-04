@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -exuo pipefail
+set -euo pipefail
 
 # Get the absolute path to the repository root using git
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -20,6 +20,9 @@ pyright backend/
 
 echo "====== pylint ======="
 pylint $(git ls-files | grep '\.py$')
+
+echo "====== vulture ======="
+vulture backend/
 
 echo "====== prettier ======="
 (cd frontend; pnpm exec prettier --write .)

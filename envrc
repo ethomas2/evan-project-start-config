@@ -1,6 +1,7 @@
 ################################# Common Shit #################################
 [ -f .secrets.envrc ] && source .secrets.envrc
 export GIT_BASE_DEFAULT_BRANCH=origin/main
+export REPO_ROOT=$(pwd)
 export PATH=$PATH:$(pwd)/utility
 export PATH=$PATH:$(pwd)/devtools/
 
@@ -18,6 +19,6 @@ export PGPORT=5432
 
 
 ################################# Python Shit #################################
-[ -f venv/bin/ ] && source venv/bin/activate
+[ -d venv/bin/ ] && source venv/bin/activate
 export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
 export PDBRC=$(pwd)/.pdbrc
