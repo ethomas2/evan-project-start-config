@@ -19,6 +19,16 @@ export PGPORT=5432
 
 
 ################################# Python Shit #################################
-[ -d venv/bin/ ] && source venv/bin/activate
+pwd
+if [ -d ./venv/bin/ ]; then
+  echo "found root venv"
+  source venv/bin/activate
+elif [ -d ./backend/venv/bin/ ]; then
+  echo "found backend venv"
+  source ./backend/venv/bin/activate
+else
+  echo "found no venv"
+fi
+
 export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
 export PDBRC=$(pwd)/.pdbrc

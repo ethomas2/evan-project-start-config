@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "setup": {
+    "files": [
+      {
+        "source": "workspace.envrc",
+        "destination": ".envrc"
+      }
+    ]
+  }
+}
