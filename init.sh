@@ -6,9 +6,10 @@ cp -ri "$SRC"/* "$DST"/
 (
   cd "$DST"
   rm init.sh || true
-  mv -i cursor .cursor
-  mv -i gitignore .gitignore
-  mv -i envrc .envrc
+  mv -i cursor .cursor || true
+  mv -i claude .claude || true
+  mv -i gitignore .gitignore || true
+  mv -i envrc .envrc || true
   direnv allow
 )
 

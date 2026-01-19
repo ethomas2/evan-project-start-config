@@ -24,7 +24,6 @@ from typing import (
     overload,
 )
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -143,24 +142,6 @@ class InvariantError(Exception):
     """
 
 
-def pairs[T](iterable: Iterable[T]) -> Generator[tuple[T, T], None, None]:
-    """
-    Given an iterable of values (x1, x2, x3, ...), return an iterable of of
-    pairs of adjacent values ((x1, x2), (x2, x3), (x3, x4) ...).
-    >>> list(pairs([1, 2, 3, 4]))
-    >>> [(1, 2), (2, 3), (3, 4)]
-    """
-
-    it = iter(iterable)
-    prev = next(it, None)
-    if prev is None:
-        return
-
-    for item in it:
-        yield prev, item
-        prev = item
-
-
 def hist[T](iterable: Iterable[T]) -> dict[T, int]:
     """
     Return a histogram of the elements in the iterable.
@@ -222,8 +203,8 @@ def chunks[T](iterable: Iterable[T] | AsyncIterable[T], n: int):
 
 
 def assert_not_none[T](  # pylint: disable=keyword-arg-before-vararg
-    value: Optional[T],
-    msg: Optional[str] = None,
+    value: T | None,
+    msg: str | None = None,
     *args: Any,
 ) -> T:
     """

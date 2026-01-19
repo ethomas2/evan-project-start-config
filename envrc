@@ -32,3 +32,8 @@ fi
 
 export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
 export PDBRC=$(pwd)/.pdbrc
+
+################################# Random shit #################################
+
+# export FZF_DEFAULT_COMMAND='fd --no-ignore-vcs --ignore-file fdignore --type f'
+# export FZF_CTRL_T_COMMAND='fd --no-ignore-vcs --ignore-file fdignore --type f'
