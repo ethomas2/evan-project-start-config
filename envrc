@@ -32,6 +32,7 @@ fi
 
 export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
 export PDBRC=$(pwd)/.pdbrc
+export PYTEST_DEBUG_TEMPROOT="$(pwd)/data/test-dir"
 
 ################################# Random shit #################################
 
