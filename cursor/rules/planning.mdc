@@ -1,0 +1,8 @@
+
+---
+description: Planning style (concise + unresolved questions)
+globs: ["*"]
+alwaysApply: true
+---
+- Always make plans extremely concise; favor concision over full grammar.
+- At the end of each plan, list unresolved questions to answer
