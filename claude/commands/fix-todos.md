@@ -2,7 +2,7 @@
 
 - First check to make sure all changes are currently committed. No dirty changes. If there are dirty changes commit them with the message `cursor: stash before fixing TODOs`.
 
-- Run `rg -i 'TODO.*(cursor)' -g '*.py' --vimgrep` to find all TODOs in the codebase that I want you to fix.
+- Run `rg -i 'TODO.*(cursor|claude)' -g '*.py' --vimgrep`  to find all TODOs in the codebase that I want you to fix.
 
 - ONLY fix the TODOs annotated with (cursor). DO NOT fix or delete the TODOs annotated with (evan). I will fix those myself.
 
