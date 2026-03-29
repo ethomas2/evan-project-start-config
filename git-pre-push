@@ -1,0 +1,83 @@
+#!/bin/bash
+
+RED='\033[31m'
+YELLOW='\033[33m'
+RESET='\033[0m'
+
+DEFAULT_BRANCH="origin/master"
+ZERO_SHA="0000000000000000000000000000000000000000"
+
+fail() {
+  echo -e "${RED}$1${RESET}"
+  exit 1
+}
+
+# --- validation functions ---------------------------------------------------
+
+check_not_main() {
+  local remote_ref="$1"
+  if [ "$remote_ref" = "refs/heads/master" ] || [ "$remote_ref" = "refs/heads/main" ]; then
+    fail "NO PUSHES TO $remote_ref"
+  fi
+}
+
+check_commit_messages() {
+  local local_sha="$1" remote_sha="$2"
+  [ "$local_sha" = "$ZERO_SHA" ] && return 0
+
+  local pattern="DO NOT MERGE\|DO NOT PUSH\|REVIEW BEFORE MERGE\|NEEDS REVIEW"
+  local bad_commits
+
+  if [ "$remote_sha" = "$ZERO_SHA" ]; then
+    bad_commits=$(git log --format="%h %s" "$local_sha" --not --remotes=origin | grep -i "$pattern")
+  else
+    bad_commits=$(git log --format="%h %s" "$remote_sha..$local_sha" | grep -i "$pattern")
+  fi
+
+  if [ -n "$bad_commits" ]; then
+    echo -e "${RED}REFUSED: commit(s) containing forbidden markers:${RESET}"
+    echo "$bad_commits" | while read -r line; do
+      echo -e "  ${YELLOW}$line${RESET}"
+    done
+    exit 1
+  fi
+}
+
+check_no_todos() {
+  local local_sha="$1"
+  [ "$local_sha" = "$ZERO_SHA" ] && return 0
+
+  local base
+  base=$(git merge-base "$local_sha" "$DEFAULT_BRANCH" 2>/dev/null)
+  [ -z "$base" ] && return 0
+
+  local found=0
+  for commit in $(git rev-list "$base..$local_sha"); do
+    local todo_lines
+    todo_lines=$(git diff "$commit~1" "$commit" 2>/dev/null \
+      | grep '^+' \
+      | grep -v '^+++' \
+      | grep 'TODO')
+
+    if [ -n "$todo_lines" ]; then
+      if [ "$found" -eq 0 ]; then
+        echo -e "${RED}REFUSED: commit(s) introduce TODO(s):${RESET}"
+        found=1
+      fi
+      echo -e "  ${YELLOW}$(git log --format="%h %s" -1 "$commit")${RESET}"
+      echo "$todo_lines" | while read -r line; do
+        echo "    $line"
+      done
+    fi
+  done
+
+  [ "$found" -ne 0 ] && exit 1
+}
+
+# --- main --------------------------------------------------------------------
+
+while read local_ref local_sha remote_ref remote_sha; do
+  check_not_main  "$remote_ref"
+  check_commit_messages "$local_sha" "$remote_sha"
+  check_no_todos  "$local_sha"
+done
