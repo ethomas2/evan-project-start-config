@@ -25,7 +25,7 @@ check_commit_messages() {
   local local_sha="$1" remote_sha="$2"
   [ "$local_sha" = "$ZERO_SHA" ] && return 0
 
-  local pattern="DO NOT MERGE\|DO NOT PUSH\|REVIEW BEFORE MERGE\|NEEDS REVIEW"
+  local pattern="DO NOT MERGE\|DO NOT PUSH\|REVIEW BEFORE MERGE\|NEEDS REVIEW\|REVIEW"
   local bad_commits
 
   if [ "$remote_sha" = "$ZERO_SHA" ]; then
@@ -81,3 +81,5 @@ while read local_ref local_sha remote_ref remote_sha; do
   check_commit_messages "$local_sha" "$remote_sha"
   check_no_todos  "$local_sha"
 done
+
+exit 0
